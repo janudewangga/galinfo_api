@@ -3,11 +3,22 @@ const router = express.Router();
 const i18n = require('i18n');
 const db = require('../db');
 const bcrypt = require('bcrypt');
-router.get('/', async (req, res) => {
+const mids = require('../mids');
+router.get('/', mids.auth(), async (req, res) => {
   let dbQuery = {
     limit: 10,
-    order: [['id', 'desc']]
+    order: [['id', 'desc']],
+    logging: console.log
   };
+  if (req.user.role === 'client') {
+    dbQuery.where = {
+      user_id: req.user.id
+    };
+    dbQuery.include = [
+      // { model: db.User, as: 'user' },
+      // { model: db.Payment, as: 'payments' }
+    ];
+  }
   let invoices = await db.Invoice.findAll(dbQuery);
   res.json(invoices);
 });

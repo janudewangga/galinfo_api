@@ -4,6 +4,7 @@ const i18n = require('i18n');
 const db = require('../db');
 const bcrypt = require('bcrypt');
 const mids = require('../mids');
+const jwt = require('jsonwebtoken');
 const { body, validationResult, matchedData } = require('express-validator');
 router.get('/', mids.auth(), async (req, res) => {
   let users = await db.User.findAll();
@@ -14,7 +15,10 @@ router.get('/:id', mids.auth(), async (req, res) => {
   let user = await db.User.findOne({
     where: {
       id: id
-    }
+    },
+    include: [
+      // { model: db.Invoice, as: 'invoices' }
+    ]
   });
   if (user) {
     res.json(user);
@@ -35,8 +39,21 @@ router.post('/get_token',
         }
       });
       if (user) {
-        if (bcrypt.compareSync(vData.password, user.password)) {
-          res.json(user);
+        if (bcrypt.compareSync(vData.password, user.password.replace('$2y$', '$2b$'))) {
+          if (user.status === 'active') {
+            let payLoad = {
+              id: user.id,
+              photo: user.photo,
+              name: user.name,
+              username: user.username,
+              role: user.role,
+              issued: new Date()
+            };
+            let token = jwt.sign(payLoad, process.env.SECRET);
+            res.json({ user: payLoad, token });
+          } else {
+            res.status(403).json({ message: i18n.__('Forbidden') });
+          }
         } else {
           res.status(403).json({ message: i18n.__('Forbidden') });
         }
