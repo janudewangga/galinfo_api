@@ -12,4 +12,6 @@ app.use(express.json());
 app.use('/', require('./routes/core'));
 app.use('/invoice', require('./routes/invoice'));
 app.use('/user', require('./routes/user'));
+app.use('/router', require('./routes/router'));
+app.use('/product', require('./routes/product'));
 app.listen(7070);
