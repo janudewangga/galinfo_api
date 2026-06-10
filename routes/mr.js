@@ -11,34 +11,28 @@ router.get('/', mids.auth(), async (req, res) => {
   };
   if (req.user.role === 'client') {
     dbQuery.where = {
-      user_id: req.user.id
+      client_id: req.user.id
     };
     // dbQuery.include = [
     //   // { model: db.User, as: 'user' },
     //   // { model: db.Payment, as: 'payments' }
     // ];
   }
-  let invoices = await db.Invoice.findAll(dbQuery);
-  res.json(invoices);
+  let mrs = await db.Mr.findAll(dbQuery);
+  res.json(mrs);
 });
 router.get('/:id', mids.auth(), async (req, res) => {
   let id = req.params.id;
-  let invoice = await db.Invoice.findOne({
+  let mr = await db.Mr.findOne({
     where: {
-      user_id: req.user.id,
-      alias_id: id
+      client_id: req.user.id,
+      uid: id
     },
     include: [
-      { model: db.Payment, as: 'payments' },
-      {
-        model: db.InvoiceItems, as: 'items', include: [
-          { model: db.Product, as: 'product' }
-        ]
-      },
     ]
   });
-  if (invoice) {
-    res.json(invoice);
+  if (mr) {
+    res.json(mr);
   } else {
     res.status(404).json({ message: i18n.__('Not found.') });
   }

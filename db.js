@@ -18,6 +18,7 @@ const Log = require('./models/log')(sequelize);
 const Payment = require('./models/payment')(sequelize);
 const Product = require('./models/product')(sequelize);
 const Router = require('./models/router')(sequelize);
+const Mr = require('./models/mr')(sequelize);
 Invoice.belongsTo(User, { as: 'user', foreignKey: 'user_id' });
 Payment.belongsTo(Invoice, { as: 'invoice', foreignKey: 'invoice_id' });
 Invoice.hasMany(Payment, { as: 'payments', foreignKey: 'invoice_id' });
@@ -25,6 +26,7 @@ User.hasMany(Invoice, { as: 'invoices', foreignKey: 'user_id' });
 Invoice.hasMany(InvoiceItems, { as: 'items', foreignKey: 'invoice_id' });
 InvoiceItems.belongsTo(Invoice, { foreignKey: 'invoice_id', as: 'invoice' });
 InvoiceItems.belongsTo(Product, { foreignKey: 'product_id', as: 'product' });
+User.hasMany(Mr, { foreignKey: 'client_id', as: 'mrs' });
 module.exports = {
   sequelize,
   Op,
@@ -34,5 +36,6 @@ module.exports = {
   Payment,
   InvoiceItems,
   Product,
-  Router
+  Router,
+  Mr
 };

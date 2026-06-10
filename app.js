@@ -14,4 +14,8 @@ app.use('/invoice', require('./routes/invoice'));
 app.use('/user', require('./routes/user'));
 app.use('/router', require('./routes/router'));
 app.use('/product', require('./routes/product'));
+app.use('/mr', require('./routes/mr'));
+app.use((req, res, next) => {
+  res.status(404).json({ message: i18n.__('Not found.') });
+});
 app.listen(7070);

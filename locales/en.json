@@ -4,5 +4,6 @@
 	"Username": "Username",
 	"msg1": "{{field}} is required.",
 	"Password": "Password",
-	"Not found.": "Not found."
+	"Not found.": "Not found.",
+	"Not found": "Not found"
 }
