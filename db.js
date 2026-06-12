@@ -9,6 +9,14 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
     timestamps: true,
     createdAt: 'created_at',
     updatedAt: 'updated_at'
+  },
+  dialectOptions: {
+    typeCast: function (field, next) {
+      if (field.type === 'DATETIME' || field.type === 'TIMESTAMP') {
+        return field.string(); // Returns raw string from DB (e.g., "2026-06-12 10:58:00")
+      }
+      return next();
+    },
   }
 });
 const User = require('./models/user')(sequelize);
@@ -19,6 +27,7 @@ const Payment = require('./models/payment')(sequelize);
 const Product = require('./models/product')(sequelize);
 const Router = require('./models/router')(sequelize);
 const Mr = require('./models/mr')(sequelize);
+const MrProcesses = require('./models/mr_process')(sequelize);
 Invoice.belongsTo(User, { as: 'user', foreignKey: 'user_id' });
 Payment.belongsTo(Invoice, { as: 'invoice', foreignKey: 'invoice_id' });
 Invoice.hasMany(Payment, { as: 'payments', foreignKey: 'invoice_id' });
@@ -27,6 +36,10 @@ Invoice.hasMany(InvoiceItems, { as: 'items', foreignKey: 'invoice_id' });
 InvoiceItems.belongsTo(Invoice, { foreignKey: 'invoice_id', as: 'invoice' });
 InvoiceItems.belongsTo(Product, { foreignKey: 'product_id', as: 'product' });
 User.hasMany(Mr, { foreignKey: 'client_id', as: 'mrs' });
+Mr.hasMany(MrProcesses, { foreignKey: 'mr_id', as: 'processes' });
+Mr.belongsTo(User, { foreignKey: 'client_id', as: 'client' });
+Mr.belongsTo(User, { foreignKey: 'operator_id', as: 'operator' });
+MrProcesses.belongsTo(User, { foreignKey: 'technician_id', as: 'technician' });
 module.exports = {
   sequelize,
   Op,
@@ -37,5 +50,6 @@ module.exports = {
   InvoiceItems,
   Product,
   Router,
-  Mr
+  Mr,
+  MrProcesses
 };
